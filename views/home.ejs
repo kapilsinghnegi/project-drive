@@ -74,6 +74,29 @@
                 name="file"
                 class="hidden"
               />
+              <div id="file-preview" class="pt-1"></div>
+
+              <script>
+                const dropzoneInput = document.getElementById("dropzone-file");
+                const preview = document.getElementById("file-preview");
+
+                function showDefault() {
+                  preview.innerHTML = `<div class="pt-2 text-gray-400 dark:text-gray-500 text-center">No file selected</div>`;
+                }
+
+                dropzoneInput.addEventListener("change", function (e) {
+                  const file = e.target.files[0];
+                  if (!file) {
+                    showDefault();
+                    return;
+                  }
+                  // Show filename and replace default div
+                  preview.innerHTML = `<div class="pt-2 font-medium text-gray-700 dark:text-gray-200 text-center">Selected file: ${file.name} (${Math.round(file.size/1024)}KB)</div>`;
+                });
+
+                // Show default on page load
+                showDefault();
+              </script>
             </label>
           </div>
           <button

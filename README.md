@@ -1,4 +1,4 @@
-# drive-clone
+# Project Drive
 
 A Google Drive-like backend built with Node.js, Express, MongoDB, Supabase Storage, and JWT authentication.
 This project allows users to register, log in, upload files, and download them securely. It uses Supabase for file storage and MongoDB for user management.
@@ -60,7 +60,7 @@ This is a simple implementation of a file storage system similar to Google Drive
 ## Folder Structure
 
 ```
-drive-clone/
+project-drive/
   app.js
   config/
     db.js
