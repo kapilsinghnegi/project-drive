@@ -52,6 +52,7 @@ router.post(
         mimetype: req.file.mimetype,
         size: Math.round(req.file.size / 1024),
         user: req.user.userId,
+        createdAt: req.file.createdAt,
       });
 
       res.redirect("/home");

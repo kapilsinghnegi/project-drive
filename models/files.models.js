@@ -22,6 +22,10 @@ const fileSchema = new mongoose.Schema({
     ref: "users",
     required: [true, "User is required"],
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const fileModel = mongoose.model("files", fileSchema);

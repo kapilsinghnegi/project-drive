@@ -1,9 +1,8 @@
 const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const userRouter = require("./routes/user.routes");
 const indexRouter = require("./routes/index.routes");
-
-dotenv.config();
 
 const connectToDB = require("./config/db");
 connectToDB();
@@ -11,6 +10,8 @@ connectToDB();
 const cookieParser = require("cookie-parser");
 
 const app = express();
+const path = require("path");
+app.use(express.static(path.join(__dirname, "public")));
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
