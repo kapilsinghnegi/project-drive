@@ -170,6 +170,15 @@ export default function Register() {
                         >
                             {loading ? "Creating..." : "Create account"}
                         </button>
+                        <p className="mt-4 text-xs text-slate-400 text-center">
+                            Already have an account?{" "}
+                            <a
+                                href="/login"
+                                className="text-[#a855f7] hover:text-[#f472b6] font-medium"
+                            >
+                                Log in
+                            </a>
+                        </p>
                     </form>
                 </div>
             </div>

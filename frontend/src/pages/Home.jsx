@@ -1,12 +1,35 @@
 import { useState, useEffect } from "react";
 import { api, buildApiUrl } from "../apiClient";
 import { useToast } from "../toastContext";
+import { FiEye } from "react-icons/fi";
+import { AiOutlineFilePdf } from "react-icons/ai";
+import { BsFiletypeJpg, BsFiletypePng } from "react-icons/bs";
+import { BiFile } from "react-icons/bi";
+import { FiLogOut } from "react-icons/fi";
+import { FiUpload } from "react-icons/fi";
+import { RxCross2 } from "react-icons/rx";
+
+const getFileIcon = (file) => {
+    if (file.mimetype.startsWith("image/jpeg"))
+        return <BsFiletypeJpg className="text-pink-400 text-xl" />;
+    if (file.mimetype.startsWith("image/png"))
+        return <BsFiletypePng className="text-blue-400 text-xl" />;
+    if (file.mimetype === "application/pdf")
+        return <AiOutlineFilePdf className="text-red-400 text-xl" />;
+    return <BiFile className="text-purple-300 text-xl" />;
+};
+
 
 export default function Home() {
     const [files, setFiles] = useState([]);
     const [showUpload, setShowUpload] = useState(false);
     const [uploadFile, setUploadFile] = useState(null);
     const [previewInfo, setPreviewInfo] = useState("");
+    const [showShare, setShowShare] = useState(false);
+    const [shareFileId, setShareFileId] = useState(null);
+    const [shareEmail, setShareEmail] = useState("");
+    const [sharePassword, setSharePassword] = useState("");
+    const [shareExpiration, setShareExpiration] = useState("");
     const [loading, setLoading] = useState(false);
     const toast = useToast();
 
@@ -130,8 +153,7 @@ export default function Home() {
                         <button
                             onClick={() => setShowUpload(true)}
                             className="inline-flex items-center gap-2 bg-gradient-to-r from-[#a855f7] to-[#ec4899] hover:from-[#9333ea] hover:to-[#db2777] text-white font-medium py-2 px-5 rounded-full text-sm shadow-lg shadow-purple-500/40 transition"
-                        >
-                            <i className="ri-add-line" />
+                        ><FiUpload className="text-white text-lg" />
                             <span>New</span>
                         </button>
                         <button
@@ -139,8 +161,9 @@ export default function Home() {
                                 localStorage.removeItem("token");
                                 window.location.href = "/login";
                             }}
-                            className="text-sm text-slate-300 hover:text-rose-300 transition"
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#ec4899] to-[#a855f7] hover:from-[#db2777] hover:to-[#9333ea] text-white py-2 px-4 rounded-full text-sm shadow-lg shadow-purple-500/40 transition"
                         >
+                            <FiLogOut className="text-white text-lg" />
                             Logout
                         </button>
                     </div>
@@ -160,13 +183,68 @@ export default function Home() {
 
                 {/* Upload Popup Modal */}
                 {showUpload && (
-                    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                        <div className="relative w-full max-w-md bg-[#0b1426] p-6 rounded-2xl shadow-2xl border border-white/10">
-                            <h2 className="text-lg font-semibold mb-4 text-white">
-                                Upload file
-                            </h2>
+                    <div
+                        className="fixed inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) setShowUpload(false);
+                        }}
+                    >
+                        <div
+                            className="relative w-full max-w-md bg-[#0b1426]/90 p-6 rounded-2xl shadow-2xl border border-white/10 animate-[scaleIn_.25s_ease]"
+                        >
+                            {/* Top Right Close */}
+                            <button
+                                onClick={() => setShowUpload(false)}
+                                className="absolute top-3 right-3 text-slate-400 hover:text-white transition"
+                            >
+                                <i className="ri-close-line text-2xl" />
+                            </button>
+
+                            {/* Title */}
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                                    <i className="ri-upload-cloud-2-line text-[#a855f7] text-2xl" />
+                                    Upload Item
+                                </h2>
+
+                                {/* Extra Cross Icon beside title */}
+                                <button
+                                    onClick={() => setShowUpload(false)}
+                                    className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition"
+                                >
+                                    <RxCross2 />
+                                </button>
+                            </div>
+
+                            {/* Upload Form */}
                             <form onSubmit={handleUpload}>
-                                <div className="flex flex-col items-center justify-center h-52 border-2 border-dashed border-white/20 rounded-xl bg-[#131c2f] cursor-pointer w-full">
+                                <div
+                                    onDragOver={(e) => e.preventDefault()}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        const droppedFile = e.dataTransfer.files[0];
+                                        setUploadFile(droppedFile);
+                                        setPreviewInfo(
+                                            droppedFile
+                                                ? `${droppedFile.name} (${(droppedFile.size / 1024).toFixed(1)} KB)`
+                                                : ""
+                                        );
+                                    }}
+                                    className="relative flex flex-col items-center justify-center h-52 border-2 border-dashed border-white/20 rounded-xl bg-[#131c2f] cursor-pointer hover:border-[#a855f7]/60 transition"
+                                >
+                                    {/* Inner close icon */}
+                                    {previewInfo && (
+                                        <button
+                                            onClick={() => {
+                                                setUploadFile(null);
+                                                setPreviewInfo("");
+                                            }}
+                                            className="absolute top-2 right-2 p-1 bg-white/10 hover:bg-white/20 rounded-full text-slate-300 hover:text-white transition"
+                                        >
+                                            <i className="ri-close-line text-lg" />
+                                        </button>
+                                    )}
+
                                     <input
                                         type="file"
                                         className="hidden"
@@ -181,35 +259,35 @@ export default function Home() {
                                             );
                                         }}
                                     />
+
                                     <label
                                         htmlFor="file"
-                                        className="flex flex-col items-center justify-center text-center text-slate-200 px-4"
+                                        className="flex flex-col items-center text-center text-slate-200 px-4"
                                     >
-                                        <i className="ri-upload-cloud-2-line text-4xl mb-2 text-[#a855f7]" />
+                                        <i className="ri-folder-upload-line text-5xl mb-3 text-[#a855f7] drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]" />
                                         <p className="text-sm font-medium text-white">
-                                            {previewInfo || "Click to select a file"}
+                                            {previewInfo || "Click to browse or drag & drop a file"}
                                         </p>
                                         <p className="text-xs text-slate-400 mt-1">
-                                            Files are stored securely in Supabase
+                                            Files stored securely in Supabase
                                         </p>
                                     </label>
                                 </div>
+
+                                {/* Upload Button */}
                                 <button
                                     type="submit"
-                                    className="mt-4 inline-flex justify-center w-full bg-gradient-to-r from-[#a855f7] to-[#ec4899] hover:from-[#9333ea] hover:to-[#db2777] text-white font-medium py-2.5 px-4 rounded-full text-sm shadow-lg shadow-purple-500/30 transition"
+                                    className="mt-4 w-full inline-flex justify-center items-center gap-2 bg-gradient-to-r from-[#a855f7] to-[#ec4899] hover:from-[#9333ea] hover:to-[#db2777] text-white font-medium py-2.5 px-4 rounded-full text-sm shadow-lg shadow-purple-500/30 transition"
                                 >
-                                    Upload
+                                    <i className="ri-upload-line text-lg" />
+                                    Upload Item
                                 </button>
                             </form>
-                            <button
-                                onClick={() => setShowUpload(false)}
-                                className="absolute top-3 right-3 text-slate-400 hover:text-white"
-                            >
-                                <i className="ri-close-line text-xl" />
-                            </button>
                         </div>
                     </div>
                 )}
+
+
 
                 {/* File List (Drive-like table) */}
                 <div className="mt-2 bg-[#0b1426] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
@@ -244,7 +322,7 @@ export default function Home() {
                                     {/* Name + actions */}
                                     <div className="col-span-6 flex items-center gap-3 overflow-hidden">
                                         <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-[#a855f7]/20 to-[#ec4899]/20 flex items-center justify-center text-[#f472b6] flex-shrink-0 border border-white/10">
-                                            <i className="ri-file-2-line text-lg" />
+                                            {getFileIcon(file)}
                                         </div>
                                         <div className="min-w-0">
                                             <a
@@ -263,6 +341,17 @@ export default function Home() {
                                                     className="hover:text-white"
                                                 >
                                                     View
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShareFileId(file._id);
+                                                        setShowShare(true);
+                                                    }}
+                                                    className="hover:text-blue-300"
+                                                >
+                                                    Share
                                                 </button>
                                                 <button
                                                     type="button"

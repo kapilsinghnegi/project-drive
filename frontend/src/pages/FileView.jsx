@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../apiClient";
 import { useToast } from "../toastContext";
+import { IoArrowBackCircleOutline } from "react-icons/io5";
+import { SlArrowLeftCircle } from "react-icons/sl";
+
 
 export default function FileView() {
     const { id } = useParams(); // file id from URL
@@ -92,7 +95,10 @@ export default function FileView() {
                             to="/home"
                             className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
                         >
-                            <i className="ri-arrow-left-s-line text-lg" />
+                            <div className="inline-flex items-center justify-center bg-gradient-to-r from-[#a855f7] to-[#ec4899] hover:from-[#9333ea] hover:to-[#db2777] text-white p-2 rounded-full shadow-lg shadow-purple-500/30 transition-colors">
+                                <SlArrowLeftCircle className="text-white text-lg" />
+                            </div>
+
                         </Link>
                         <div>
                             <p className="text-xs font-medium text-slate-300">

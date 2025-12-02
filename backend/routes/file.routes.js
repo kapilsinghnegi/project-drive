@@ -2,6 +2,10 @@ const express = require("express");
 const auth = require("../middlewares/auth");
 const fileModel = require("../models/files.models");
 const supabase = require("../config/supabaseClient");
+const {
+  shareFile,
+  accessSharedFile,
+} = require("../controllers/file.controller");
 
 const router = express.Router();
 
@@ -92,5 +96,11 @@ router.delete("/:id", auth, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// SHARE FILE
+router.post("/share/:id", auth, shareFile);
+
+// ACCESS SHARED FILE (no auth required)
+router.get("/shared/:linkId", accessSharedFile);
 
 module.exports = router;
