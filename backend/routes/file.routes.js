@@ -16,24 +16,7 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-// GET FILE BY ID (for React FileView page)
-router.get("/:id", auth, async (req, res) => {
-  try {
-    const file = await fileModel.findOne({
-      _id: req.params.id,
-      user: req.user.userId,
-    });
-
-    if (!file) return res.status(404).json({ message: "File not found" });
-
-    res.json({ file });
-  } catch (error) {
-    console.error("Get file error:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// DOWNLOAD FILE
+// DOWNLOAD FILE (declared before :id so /download/... doesn't match :id)
 router.get("/download/:path", auth, async (req, res) => {
   try {
     const loggedUser = req.user.userId;
@@ -61,6 +44,23 @@ router.get("/download/:path", auth, async (req, res) => {
     res.send(Buffer.from(arrayBuffer));
   } catch (error) {
     console.error("Download error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET FILE BY ID (for React FileView page)
+router.get("/:id", auth, async (req, res) => {
+  try {
+    const file = await fileModel.findOne({
+      _id: req.params.id,
+      user: req.user.userId,
+    });
+
+    if (!file) return res.status(404).json({ message: "File not found" });
+
+    res.json({ file });
+  } catch (error) {
+    console.error("Get file error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

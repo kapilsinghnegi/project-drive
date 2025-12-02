@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+const multer = require("multer");
 
 const connectToDB = require("./config/db");
 connectToDB();
@@ -35,6 +36,23 @@ app.use(
 app.use("/api/user", userRouter);
 app.use("/api/file", fileRouter);
 app.use("/api/upload", uploadRouter);
+
+// Central error handler (including Multer errors)
+// This ensures file-size errors send a clean JSON response instead of crashing the request
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res
+        .status(400)
+        .json({ error: "File too large. Please upload a smaller file." });
+    }
+
+    return res.status(400).json({ error: err.message });
+  }
+
+  console.error("Unhandled error:", err);
+  return res.status(500).json({ error: "Internal server error" });
+});
 
 // ERROR HANDLER
 process.on("uncaughtException", (err) => {
